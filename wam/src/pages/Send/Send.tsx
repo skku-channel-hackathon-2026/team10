@@ -22,11 +22,13 @@ import { SendIcon } from '@channel.io/bezier-icons'
 import { InlineBanner } from '@channel.io/app-sdk-wam-ui'
 
 import { useTutorialWamData } from '../../hooks/useTutorialWamData'
+import { isMockWam } from '../../hooks/mockWamData'
 
 function Send() {
   const { setSize } = useWamSize()
   const { close } = useWamClose()
   const [errorMessage, setErrorMessage] = useState('')
+  const [mockNotice, setMockNotice] = useState('')
   const { data: wamData, error: wamDataError } = useTutorialWamData()
 
   useEffect(() => {
@@ -61,6 +63,7 @@ function Send() {
   const isSending = botLoading || managerLoading
   const statusMessage =
     errorMessage ||
+    mockNotice ||
     (wamDataError
       ? wamDataError.message
       : botError || managerError
@@ -74,6 +77,13 @@ function Send() {
   const handleSend = useCallback(
     async (sender: 'bot' | 'manager'): Promise<void> => {
       setErrorMessage('')
+      setMockNotice('')
+      if (isMockWam) {
+        setMockNotice(
+          `Local mock: skipped sending as a ${sender}. Test real sends in Desk.`
+        )
+        return
+      }
       if (!wamData) {
         setErrorMessage(
           'The host did not provide the expected tutorial WAM data.'

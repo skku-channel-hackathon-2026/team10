@@ -2,6 +2,8 @@ import { useMemo } from 'react'
 import { useTypedWamData } from '@channel.io/app-sdk-wam'
 import { TutorialWamDataSchema, type TutorialWamData } from '@tutorial/shared'
 
+import { isMockWam, mockWamData } from './mockWamData'
+
 export interface TutorialWamDataResult {
   data: TutorialWamData | null
   error: Error | null
@@ -20,6 +22,10 @@ export function useTutorialWamData(): TutorialWamDataResult {
   const targetToken = useTypedWamData('targetToken')
 
   return useMemo(() => {
+    if (isMockWam) {
+      return { data: mockWamData, error: null }
+    }
+
     const parsed = TutorialWamDataSchema.safeParse({
       appId,
       channelId,
